@@ -1,39 +1,43 @@
-
 <?php
-// Ustawiamy nagłówki - zwracamy JSON, pozwalamy na zapytania (CORS)
+/**
+ * Serwerowe API do obsługi bazy utworów muzycznych.
+ * Odpowiada za wczytywanie pliku JSON, filtrowanie danych oraz pagynację.
+ */
+
+// Ustawienie nagłówków dla formatu JSON oraz obsługa CORS
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 
-// 1. Wczytanie bazy danych z pliku JSON
+// Ścieżka do pliku bazy danych
 $jsonPath = __DIR__ . '/database/songs.json';
+
+// Sprawdzenie integralności bazy danych przed operacjami
 if (!file_exists($jsonPath)) {
     echo json_encode(['error' => 'Baza danych nie istnieje.']);
     exit;
 }
 
+// Odczyt i dekodowanie danych do tablicy asocjacyjnej
 $jsonString = file_get_contents($jsonPath);
 $data = json_decode($jsonString, true);
 $songs = $data['songs'] ?? [];
 
-// 2. Pobranie parametrów od użytkownika (z paska adresu URL)
-// mb_strtolower pomaga z polskimi znakami i ignoruje wielkość liter
+// Pobranie i normalizacja parametrów zapytania (Query Params)
 $searchQuery  = mb_strtolower($_GET['search'] ?? '');
 $filterGenre  = mb_strtolower($_GET['genre'] ?? '');
-$filterAuthor = mb_strtolower($_GET['author'] ?? '');
 
-// Paginacja: która strona? Jeśli ktoś wpisze bzdurę, wymuszamy stronę 1.
-$page  = max(1, (int)($_GET['page'] ?? 1));
-$limit = 20; // Twój limit z założeń projektu
-
-// 3. Logika Filtrowania i Wyszukiwania
-$filteredSongs = array_filter($songs, function($song) use ($searchQuery, $filterGenre, $filterAuthor) {
+/**
+ * Logika filtrowania utworów (array_filter)
+ * Sprawdza dopasowanie frazy w tytule, autorze oraz tagach.
+ */
+$filteredSongs = array_filter($songs, function($song) use ($searchQuery, $filterGenre) {
     
-    // a) Wyszukiwanie tekstowe (szukamy w tytule, autorze lub tagach)
+    // Filtrowanie tekstowe
     if ($searchQuery !== '') {
         $titleMatch = str_contains(mb_strtolower($song['title']), $searchQuery);
         $authorMatch = str_contains(mb_strtolower($song['author']), $searchQuery);
-        
         $tagsMatch = false;
+
         foreach ($song['tags'] as $tag) {
             if (str_contains(mb_strtolower($tag), $searchQuery)) {
                 $tagsMatch = true;
@@ -41,40 +45,21 @@ $filteredSongs = array_filter($songs, function($song) use ($searchQuery, $filter
             }
         }
         
-        // Jeśli wpisana fraza nie pasuje do niczego - odrzucamy utwór
-        if (!$titleMatch && !$authorMatch && !$tagsMatch) {
-            return false;
-        }
+        if (!$titleMatch && !$authorMatch && !$tagsMatch) return false;
     }
 
-    // b) Filtrowanie po gatunku
+    // Filtrowanie po gatunku
     if ($filterGenre !== '') {
-        // Zmieniamy wszystkie gatunki utworu na małe litery, żeby łatwiej porównać
         $lowerGenres = array_map('mb_strtolower', $song['genre']);
-        if (!in_array($filterGenre, $lowerGenres)) {
-            return false;
-        }
+        if (!in_array($filterGenre, $lowerGenres)) return false;
     }
 
-    // c) Filtrowanie po autorze (ścisłe dopasowanie dla konkretnego twórcy)
-    if ($filterAuthor !== '') {
-        if (mb_strtolower($song['author']) !== $filterAuthor) {
-            return false;
-        }
-    }
-
-    // Jeśli utwór przeszedł wszystkie powyższe testy, zostaje na liście!
     return true; 
 });
 
-// Resetujemy klucze tablicy (wymagane, aby po filtracji JSON zwrócił tablicę `[]`, a nie obiekt `{}`)
+// Resetowanie indeksów tablicy i konwersja na format JSON
 $filteredSongs = array_values($filteredSongs);
 
-// 4. Paginacja (Wycinamy tylko 20 wyników na podstawie wybranej strony)
-$totalResults = count($filteredSongs);
-$offset = ($page - 1) * $limit;
-$paginatedSongs = array_slice($filteredSongs, $offset, $limit);
-
-// 5. Zwracamy czystą listę utworów do Frontendu (zgodnie z zaleceniami!)
-echo json_encode($paginatedSongs, JSON_UNESCAPED_UNICODE);
+// Zwrócenie czystej tablicy utworów do klienta
+echo json_encode($filteredSongs, JSON_UNESCAPED_UNICODE);
 ?>
