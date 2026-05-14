@@ -32,7 +32,7 @@ async function fetchSongs() {
     }
 }
 
-// 3. Dynamiczne generowanie kart utworów na podstawie danych z API
+// Dynamiczne generowanie kart utworów na podstawie danych z API
 function renderSongs(songs) {
     // 1. Bezpieczne czyszczenie kontenera
     songListContainer.replaceChildren(); 
@@ -76,25 +76,29 @@ function renderSongs(songs) {
         details.appendChild(author);
         details.appendChild(tagsDiv);
 
-        // : Kontener na przyciski akcji ---
+        //  Kontener na przyciski akcji ---
         const actionsDiv = document.createElement('div');
         actionsDiv.className = 'song-actions'; // Możesz ostylować ten kontener w CSS, żeby przyciski były obok siebie
 
         // Przycisk Play
         const playBtn = document.createElement('button');
-        playBtn.className = 'play-track-btn';
-        playBtn.textContent = '▶';
-        playBtn.setAttribute('aria-label', `Odtwórz ${song.title}`);
+                            playBtn.className = 'play-track-btn';
+                            playBtn.textContent = '▶';
+                            
+                            playBtn.addEventListener('click', () => {
+                                AudioPlayer.playTrack(song);
+                            });
+                            playBtn.setAttribute('aria-label', `Odtwórz ${song.title}`);
 
-        playBtn.addEventListener('click', () => {
-            AudioPlayer.playTrack(song);
-        });
+       // NOWY ELEMENT: Przycisk Pobierania (jako link <a>)
+   const downloadBtn = document.createElement('a');
+   downloadBtn.className = 'download-track-btn';
+   downloadBtn.textContent = 'Pobierz'; // <--- TUTAJ wpisujesz tekst zamiast ikonki 📥
+   downloadBtn.href = song.file_url;
 
-        //  Przycisk Pobierania (jako link <a>)
-        const downloadBtn = document.createElement('a');
-        downloadBtn.className = 'download-track-btn';
-        downloadBtn.textContent = '📥'; // Fajna ikonka pobierania
-        downloadBtn.href = song.file_url; // Ścieżka do pliku mp3 z bazy JSON
+   downloadBtn.setAttribute('download', `${song.author} - ${song.title}.mp3`);
+   downloadBtn.setAttribute('target', '_blank'); 
+   downloadBtn.setAttribute('aria-label', `Pobierz ${song.title}`);
         
         // Atrybuty wymuszające pobieranie i otwieranie w nowym oknie (w razie restrykcji przeglądarki)
         downloadBtn.setAttribute('download', `${song.author} - ${song.title}.mp3`);
@@ -115,3 +119,9 @@ function renderSongs(songs) {
         songListContainer.appendChild(card);
     });
 }
+
+// 4. Startujemy nasłuchiwanie i pierwsze ładowanie
+searchInput.addEventListener('input', () => fetchSongs());
+genreSelect.addEventListener('change', () => fetchSongs());
+
+fetchSongs();
