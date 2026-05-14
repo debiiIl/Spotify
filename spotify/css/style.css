@@ -132,3 +132,20 @@ body {
 .song-details {
     flex-grow: 1; 
 }
+.song-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.download-track-btn {
+    text-decoration: none;
+    font-size: 1;
+    cursor: pointer;
+    transition: transform 0.2s;
+    
+}
+
+.download-track-btn:hover {
+    transform: scale(1.2);
+}
