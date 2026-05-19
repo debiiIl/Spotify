@@ -137,15 +137,29 @@ body {
     gap: 10px;
     align-items: center;
 }
-
+/* Przycisk Pobierz */
 .download-track-btn {
+    display: inline-block;
+    padding: 6px 16px;
+    background-color: transparent;
+    color: #b3b3b3;
+    font-size: 0.85rem;
+    font-weight: bold;
     text-decoration: none;
-    font-size: 1;
-    cursor: pointer;
-    transition: transform 0.2s;
-    
+    border-radius: 20px;
+    border: 2px solid #535353; 
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .download-track-btn:hover {
-    transform: scale(1.2);
+    color: #ffffff; /* Zmienia się na czystą biel */
+    border-color: #ffffff; /* Ramka staje się biała */
+    background-color: rgba(255, 255, 255, 0.1); /* Lekka poświata w tle */
+    transform: scale(1.05);
+}
+
+.download-track-btn:active {
+    transform: scale(0.95);
 }
