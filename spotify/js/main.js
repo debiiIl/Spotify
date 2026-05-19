@@ -78,7 +78,7 @@ function renderSongs(songs) {
 
         //  Kontener na przyciski akcji ---
         const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'song-actions'; // Możesz ostylować ten kontener w CSS, żeby przyciski były obok siebie
+        actionsDiv.className = 'song-actions'; 
 
         // Przycisk Play
         const playBtn = document.createElement('button');
@@ -90,10 +90,10 @@ function renderSongs(songs) {
                             });
                             playBtn.setAttribute('aria-label', `Odtwórz ${song.title}`);
 
-       // NOWY ELEMENT: Przycisk Pobierania (jako link <a>)
+       //  Przycisk Pobierania (jako link <a>)
    const downloadBtn = document.createElement('a');
    downloadBtn.className = 'download-track-btn';
-   downloadBtn.textContent = 'Pobierz'; // <--- TUTAJ wpisujesz tekst zamiast ikonki 📥
+   downloadBtn.textContent = 'Pobierz'; 
    downloadBtn.href = song.file_url;
 
    downloadBtn.setAttribute('download', `${song.author} - ${song.title}.mp3`);
