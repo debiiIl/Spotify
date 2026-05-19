@@ -105,7 +105,7 @@ function renderSongs(songs) {
         downloadBtn.setAttribute('target', '_blank'); 
         downloadBtn.setAttribute('aria-label', `Pobierz ${song.title}`);
 
-        // Dodajemy przyciski do kontenera akcji
+        // Dodaje przyciski do kontenera akcji
         actionsDiv.appendChild(playBtn);
         actionsDiv.appendChild(downloadBtn);
         // --------------------------------------------------------
